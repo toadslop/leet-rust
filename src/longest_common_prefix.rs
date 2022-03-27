@@ -17,10 +17,29 @@ pub fn longest_common_prefix(strs: Vec<String>) -> String {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
 
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn example_1() {
+        let strs = vec!["flower", "flow", "flight"]
+            .iter()
+            .copied()
+            .map(String::from)
+            .collect();
+        let result = longest_common_prefix(strs);
+        println!("{}", result);
+        assert_eq!(result, "fl");
+    }
+
+    #[test]
+    fn example_2() {
+        let strs = vec!["dog", "racecar", "car"]
+            .iter()
+            .copied()
+            .map(String::from)
+            .collect();
+        let result = longest_common_prefix(strs);
+        println!("{}", result);
+        assert_eq!(result, "");
     }
 }
