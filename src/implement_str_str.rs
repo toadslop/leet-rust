@@ -1,5 +1,7 @@
+#[allow(dead_code)]
 struct Solution {}
 
+#[allow(dead_code)]
 impl Solution {
     const IDX_TOO_BIG: &'static str = "Index was too big to convert to i32";
     const NOT_FOUND: i32 = -1;

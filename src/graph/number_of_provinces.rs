@@ -1,7 +1,9 @@
 use crate::graph::disjoint_set::disjoint_set::DisjointSet;
 
+#[allow(dead_code)]
 struct Solution {}
 
+#[allow(dead_code)]
 impl Solution {
     const CONNECTED: i32 = 1;
 

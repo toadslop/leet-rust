@@ -4,6 +4,7 @@ pub struct ListNode {
     pub next: Option<Box<ListNode>>,
 }
 
+#[allow(dead_code)]
 impl ListNode {
     #[inline]
     fn new(val: i32) -> Self {
@@ -15,8 +16,10 @@ impl ListNode {
     }
 }
 
+#[allow(dead_code)]
 struct Solution {}
 
+#[allow(dead_code)]
 impl Solution {
     pub fn merge_two_lists(
         list1: Option<Box<ListNode>>,
