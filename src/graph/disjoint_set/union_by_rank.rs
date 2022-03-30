@@ -1,11 +1,13 @@
 use std::cell::RefCell;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct QuickFind {
     root: RefCell<Vec<usize>>,
     rank: RefCell<Vec<usize>>,
 }
 
+#[allow(dead_code)]
 impl QuickFind {
     pub fn new(size: usize) -> Self {
         Self {
