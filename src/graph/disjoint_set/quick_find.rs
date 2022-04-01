@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 #[allow(dead_code)]
 #[derive(Debug)]
-struct QuickFind {
+pub struct QuickFind {
     root: RefCell<Vec<usize>>,
 }
 

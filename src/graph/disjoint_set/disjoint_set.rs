@@ -54,7 +54,6 @@ impl DisjointSet {
         let root_y = self.find(y);
 
         if root_x != root_y {
-            self.group_count.replace(self.group_count.get() - 1);
             let mut rank = self.rank.borrow_mut();
             let mut root = self.root.borrow_mut();
             if rank[root_x] > rank[root_y] {
@@ -65,6 +64,7 @@ impl DisjointSet {
                 root[root_y] = root_x;
                 rank[root_x] += 1;
             }
+            self.group_count.replace(self.group_count.get() - 1);
         }
     }
 
