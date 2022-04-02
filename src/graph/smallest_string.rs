@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 struct Solution {}
 
+#[allow(dead_code)]
 impl Solution {
     pub fn smallest_string_with_swaps(s: String, pairs: Vec<Vec<i32>>) -> String {
         let mut rank = vec![0; s.len()];
