@@ -20,7 +20,7 @@ impl Solution {
         for (i, equation) in equations.iter().enumerate() {
             union(&mut value_map, &equation[0], &equation[1], values[i])
         }
-        // println!("VALUE MAP: {:?}", value_map);
+
         queries
             .iter()
             .map(|query| {
@@ -29,11 +29,7 @@ impl Solution {
                 } else {
                     let (_, dividend) = value_map[query[0].as_str()];
                     let (_, divisor) = value_map[query[1].as_str()];
-                    // println!("VALUE MAP: {:?}", value_map);
-                    // println!("{} / {}", query[0], query[1]);
-                    // println!("{} / {}", dividend, divisor);
-                    find(&mut value_map, "x1");
-                    dividend / divisor
+                    ((dividend / divisor) * 100000.0).round() / 100000.0
                 }
             })
             .collect()
@@ -47,16 +43,17 @@ fn get_elements<'a>(queries: &'a Vec<Vec<String>>) -> Vec<&'a str> {
     elements
 }
 
-fn find<'a>(value_map: &mut HashMap<&'a str, (&'a str, f64)>, x: &'a str) -> Option<&'a str> {
+fn find<'a>(
+    value_map: &mut HashMap<&'a str, (&'a str, f64)>,
+    x: &'a str,
+    depth: u32,
+) -> Option<(&'a str, f64)> {
     if let Some((group_id, weight)) = value_map.get(x).copied() {
         if !x.eq(group_id) {
-            let (parent_group_id, parent_weight) = value_map[group_id];
-            let update = find(value_map, parent_group_id).unwrap();
-            value_map.insert(x, (update, weight * parent_weight));
-            Some(value_map[update].0)
-        } else {
-            Some(value_map[x].0)
+            let (new_group, new_weight) = find(value_map, group_id, depth + 1).unwrap();
+            value_map.insert(x, (new_group, weight * new_weight));
         }
+        Some(value_map[x])
     } else {
         None
     }
@@ -68,21 +65,17 @@ fn union<'a>(
     divisor: &'a str,
     quotient: f64,
 ) -> () {
-    let group_id_dividend = find(&mut value_map, dividend);
-    let group_id_divisor = find(&mut value_map, divisor);
-
+    let group_id_dividend = find(&mut value_map, dividend, 1);
+    let group_id_divisor = find(&mut value_map, divisor, 1);
     value_map.insert(
-        group_id_dividend.unwrap(),
-        (group_id_divisor.unwrap(), quotient),
+        group_id_dividend.unwrap().0,
+        (group_id_divisor.unwrap().0, quotient),
     );
 }
 
 fn connected<'a>(value_map: &mut HashMap<&'a str, (&'a str, f64)>, x: &'a str, y: &'a str) -> bool {
-    println!("CALLING CONNECTED");
-    println!("CALLING FIND: x = {}", x);
-    println!("CALLING FIND: y = {}", y);
-    match (find(value_map, x), find(value_map, y)) {
-        (Some(root_x), Some(root_y)) => root_x.eq(root_y),
+    match (find(value_map, x, 1), find(value_map, y, 1)) {
+        (Some(root_x), Some(root_y)) => root_x.0.eq(root_y.0),
         _ => false,
     }
 }
@@ -162,6 +155,33 @@ mod tests {
         assert_eq!(
             result,
             [360.00000, 0.00833, 20.00000, 1.00000, -1.00000, -1.00000]
+        );
+    }
+
+    #[test]
+    fn example_5() -> () {
+        let equations = Vec::from([["a", "b"], ["e", "f"], ["b", "e"]])
+            .iter()
+            .map(|edge| edge.iter().map(|str| String::from(*str)).collect())
+            .collect();
+        let values = vec![3.4, 1.4, 2.3];
+        let queries = Vec::from([
+            ["b", "a"],
+            ["a", "f"],
+            ["f", "f"],
+            ["e", "e"],
+            ["c", "c"],
+            ["a", "c"],
+            ["f", "e"],
+        ])
+        .iter()
+        .map(|edge| edge.iter().map(|str| String::from(*str)).collect())
+        .collect();
+        let result = Solution::calc_equation(equations, values, queries);
+
+        assert_eq!(
+            result,
+            [0.29412, 10.94800, 1.00000, 1.00000, -1.00000, -1.00000, 0.71429]
         );
     }
 }
