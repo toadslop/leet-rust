@@ -12,10 +12,6 @@ impl Solution {
         queries: Vec<Equation>,
     ) -> Vec<f64> {
         let mut value_map: HashMap<&str, (&str, f64)> = HashMap::new();
-        let elements = get_elements(&equations);
-        for element in elements.iter() {
-            value_map.insert(*element, (*element, 1 as f64));
-        }
 
         for (i, equation) in equations.iter().enumerate() {
             union(&mut value_map, &equation[0], &equation[1], values[i])
@@ -36,13 +32,6 @@ impl Solution {
     }
 }
 
-fn get_elements<'a>(queries: &'a Vec<Vec<String>>) -> Vec<&'a str> {
-    let mut elements: Vec<&str> = queries.iter().flatten().map(String::as_str).collect();
-    elements.sort();
-    elements.dedup();
-    elements
-}
-
 fn find<'a>(
     value_map: &mut HashMap<&'a str, (&'a str, f64)>,
     x: &'a str,
@@ -50,8 +39,8 @@ fn find<'a>(
 ) -> Option<(&'a str, f64)> {
     if let Some((group_id, weight)) = value_map.get(x).copied() {
         if !x.eq(group_id) {
-            let (new_group, new_weight) = find(value_map, group_id, depth + 1).unwrap();
-            value_map.insert(x, (new_group, weight * new_weight));
+            let (root_group, root_weight) = find(value_map, group_id, depth + 1).unwrap();
+            value_map.insert(x, (root_group, weight * root_weight));
         }
         Some(value_map[x])
     } else {
@@ -65,11 +54,23 @@ fn union<'a>(
     divisor: &'a str,
     quotient: f64,
 ) -> () {
-    let group_id_dividend = find(&mut value_map, dividend, 1);
-    let group_id_divisor = find(&mut value_map, divisor, 1);
+    if !value_map.contains_key(dividend) {
+        value_map.insert(dividend, (dividend, 1 as f64));
+    }
+
+    if !value_map.contains_key(divisor) {
+        value_map.insert(divisor, (divisor, 1 as f64));
+    }
+
+    let (dividend_group_id, dividend_weight) = find(&mut value_map, dividend, 1).unwrap();
+    let (divisor_group_id, divisor_weight) = find(&mut value_map, divisor, 1).unwrap();
+
     value_map.insert(
-        group_id_dividend.unwrap().0,
-        (group_id_divisor.unwrap().0, quotient),
+        dividend_group_id,
+        (
+            divisor_group_id,
+            quotient * divisor_weight / dividend_weight,
+        ),
     );
 }
 
@@ -182,6 +183,35 @@ mod tests {
         assert_eq!(
             result,
             [0.29412, 10.94800, 1.00000, 1.00000, -1.00000, -1.00000, 0.71429]
+        );
+    }
+
+    #[test]
+    fn example_6() -> () {
+        let equations = Vec::from([["x1", "x2"], ["x2", "x3"], ["x1", "x4"], ["x2", "x5"]])
+            .iter()
+            .map(|edge| edge.iter().map(|str| String::from(*str)).collect())
+            .collect();
+        let values = vec![3.0, 0.5, 3.4, 5.6];
+        let queries = Vec::from([
+            ["x2", "x4"],
+            ["x1", "x5"],
+            ["x1", "x3"],
+            ["x5", "x5"],
+            ["x5", "x1"],
+            ["x3", "x4"],
+            ["x4", "x3"],
+            ["x6", "x6"],
+            ["x0", "x0"],
+        ])
+        .iter()
+        .map(|edge| edge.iter().map(|str| String::from(*str)).collect())
+        .collect();
+        let result = Solution::calc_equation(equations, values, queries);
+
+        assert_eq!(
+            result,
+            [1.13333, 16.80000, 1.50000, 1.00000, 0.05952, 2.26667, 0.44118, -1.00000, -1.00000]
         );
     }
 }
