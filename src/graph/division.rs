@@ -16,7 +16,7 @@ impl Solution {
         for (i, equation) in equations.iter().enumerate() {
             union(&mut value_map, &equation[0], &equation[1], values[i])
         }
-
+        println!("{:?}", value_map);
         queries
             .iter()
             .map(|query| {
