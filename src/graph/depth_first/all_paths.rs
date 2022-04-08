@@ -4,25 +4,30 @@ struct Solution {}
 impl Solution {
     pub fn all_paths_source_target(graph: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
         let mut stack: Vec<Vec<i32>> = vec![vec![0]];
-        let mut paths: Vec<Vec<i32>> = vec![];
+        let mut paths = vec![];
 
         loop {
-            match stack.pop().as_mut() {
-                Some(path) => match path.last() {
-                    Some(last) => {
-                        if *last == (graph.len() - 1) as i32 {
-                            paths.push(path.to_owned());
-                        } else {
-                            for child in graph[*last as usize].iter() {
-                                let mut next_path = path.clone();
-                                next_path.push(*child);
-                                stack.push(next_path.to_vec())
+            let mut new_paths: Vec<Vec<i32>> = vec![];
+
+            for path in stack.iter() {
+                if let Some(&last) = &path.last() {
+                    if let Some(edges) = &graph.get(last as usize) {
+                        for &vertex in edges.iter() {
+                            let mut new_path = path.clone();
+                            new_path.push(vertex);
+                            if vertex == graph.len() as i32 - 1 {
+                                paths.push(new_path);
+                            } else {
+                                new_paths.push(new_path);
                             }
                         }
                     }
-                    None => break,
-                },
-                None => break,
+                }
+            }
+
+            match new_paths.len() {
+                0 => break,
+                _ => stack = new_paths,
             }
         }
         paths
