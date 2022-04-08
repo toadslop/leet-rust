@@ -1,3 +1,4 @@
+pub mod depth_first;
 pub mod disjoint_set;
 pub mod division;
 pub mod friends;
