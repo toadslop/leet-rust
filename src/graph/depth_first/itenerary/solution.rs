@@ -8,18 +8,18 @@ impl Solution {
     pub fn find_itinerary(tickets: Vec<Vec<String>>) -> Vec<String> {
         let mut edge_map = tickets.iter().fold(HashMap::new(), into_edgelist);
         let mut visited_map: VisitedMap = HashMap::new();
-        let target_length = tickets.len();
+        let target_length = tickets.len() + 1;
 
         let mut itenerary: Vec<String> = Vec::with_capacity(target_length);
         let origin = "JFK";
         itenerary.push(String::from(origin));
 
         for (&origin, dests) in edge_map.iter_mut() {
-            dests.sort_by(|a, b| b.cmp(a));
+            dests.sort();
             visited_map.insert(origin, RefCell::from(vec![false; dests.len()]));
         }
 
-        backtrack(
+        let (_, result) = backtrack(
             &edge_map,
             &mut visited_map,
             origin,
@@ -27,7 +27,7 @@ impl Solution {
             target_length,
         );
 
-        itenerary
+        result
     }
 }
 
@@ -37,13 +37,13 @@ pub fn backtrack<'a>(
     origin: &'a str,
     itenerary: &'a mut Vec<String>,
     target_length: usize,
-) -> bool {
+) -> (bool, Vec<String>) {
     if itenerary.len() == target_length {
-        return true;
+        return (true, itenerary.clone());
     }
 
     if !edge_map.contains_key(origin) {
-        return false;
+        return (false, vec![]);
     }
 
     let visited = visited_map.get(origin).unwrap();
@@ -53,18 +53,18 @@ pub fn backtrack<'a>(
         if !visited.borrow()[i] {
             visited.borrow_mut()[i] = true;
             itenerary.push(destination.into());
-            let is_correct =
+            let (is_correct, result) =
                 backtrack(edge_map, visited_map, destination, itenerary, target_length);
             visited.borrow_mut()[i] = false;
             itenerary.pop();
 
             if is_correct {
-                return true;
+                return (true, result);
             }
         }
     }
 
-    false
+    (false, vec![])
 }
 
 fn into_edgelist<'a>(
@@ -432,5 +432,4 @@ mod tests {
 use std::{
     cell::RefCell,
     collections::{hash_map::Entry, HashMap},
-    hash::Hash,
 };
