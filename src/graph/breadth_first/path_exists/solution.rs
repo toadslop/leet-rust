@@ -13,11 +13,58 @@
 // return true if there is a valid path from source to
 // destination, or false otherwise.
 
+use std::collections::{hash_map::Entry, HashMap, HashSet, VecDeque};
+
 struct Solution {}
 
+#[allow(dead_code)]
 impl Solution {
     pub fn valid_path(n: i32, edges: Vec<Vec<i32>>, source: i32, destination: i32) -> bool {
-        unimplemented!()
+        let adj_map = edges
+            .iter()
+            .fold(HashMap::with_capacity(n as usize), into_adj_list);
+        let mut visited = HashSet::with_capacity(n as usize);
+        let mut queue = VecDeque::with_capacity(n as usize);
+        queue.push_back(&source);
+
+        while let Some(vertex) = queue.pop_front() {
+            if vertex == &destination {
+                return true;
+            }
+            if visited.contains(&vertex) {
+                continue;
+            }
+            visited.insert(vertex);
+
+            if let Some(neighbors) = adj_map.get(&vertex) {
+                for neighbor in neighbors.iter() {
+                    queue.push_back(neighbor);
+                }
+            }
+        }
+
+        false
+    }
+}
+
+fn into_adj_list<'a>(
+    mut map: HashMap<&'a i32, Vec<&'a i32>>,
+    edge: &'a Vec<i32>,
+) -> HashMap<&'a i32, Vec<&'a i32>> {
+    process_edge(&mut map, edge, false);
+    process_edge(&mut map, edge, true);
+    map
+}
+
+fn process_edge<'a>(map: &mut HashMap<&'a i32, Vec<&'a i32>>, edge: &'a Vec<i32>, reverse: bool) {
+    let (start_idx, end_idx) = if reverse { (1, 0) } else { (0, 1) };
+    match map.entry(&edge[start_idx]) {
+        Entry::Occupied(mut entry) => {
+            entry.get_mut().push(&edge[end_idx]);
+        }
+        Entry::Vacant(entry) => {
+            entry.insert(vec![&edge[end_idx]]);
+        }
     }
 }
 
@@ -53,5 +100,31 @@ mod tests {
         let output = Solution::valid_path(n, edges, source, destination);
 
         assert_eq!(output, false);
+    }
+
+    #[test]
+    fn example_3() -> () {
+        let n = 10;
+        let edges = Vec::from([
+            [0, 7],
+            [0, 8],
+            [6, 1],
+            [2, 0],
+            [0, 4],
+            [5, 8],
+            [4, 7],
+            [1, 3],
+            [3, 5],
+            [6, 5],
+        ])
+        .iter()
+        .map(|edge| Vec::from(*edge))
+        .collect();
+        let source = 7;
+        let destination = 5;
+
+        let output = Solution::valid_path(n, edges, source, destination);
+
+        assert_eq!(output, true);
     }
 }
