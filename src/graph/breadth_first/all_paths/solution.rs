@@ -13,11 +13,34 @@
 // return true if there is a valid path from source to
 // destination, or false otherwise.
 
+use std::collections::LinkedList;
+
 struct Solution {}
 
+#[allow(dead_code)]
 impl Solution {
     pub fn all_paths_source_target(graph: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
-        unimplemented!()
+        let end = (graph.len() as i32) - 1;
+        let mut queue: LinkedList<Vec<i32>> = LinkedList::new();
+        queue.push_back(vec![0]);
+        let mut paths: Vec<Vec<i32>> = Vec::with_capacity(end as usize);
+
+        while let Some(path) = queue.pop_front() {
+            if let Some(&current_vertex) = path.last() {
+                if let Some(neighbors) = graph.get(current_vertex as usize) {
+                    for &neighbor in neighbors.iter() {
+                        let mut new_path = path.clone();
+                        new_path.push(neighbor);
+                        if neighbor == end {
+                            paths.push(new_path);
+                        } else {
+                            queue.push_back(new_path);
+                        }
+                    }
+                }
+            }
+        }
+        paths
     }
 }
 
@@ -41,14 +64,17 @@ mod tests {
     #[test]
     fn example_2() -> () {
         let graph = Vec::from([vec![4, 3, 1], vec![3, 2, 4], vec![3], vec![4], vec![]]);
-        let output = Solution::all_paths_source_target(graph);
-        let result = Vec::from([
+        let mut output = Solution::all_paths_source_target(graph);
+        output.sort();
+        let mut result = Vec::from([
             vec![0, 4],
             vec![0, 3, 4],
             vec![0, 1, 3, 4],
             vec![0, 1, 2, 3, 4],
             vec![0, 1, 4],
         ]);
+
+        result.sort();
 
         assert_eq!(output, result);
     }
