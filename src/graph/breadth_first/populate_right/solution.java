@@ -4,25 +4,32 @@ import java.util.LinkedList;
 
 class Solution {
   public Node connect(Node root) {
-    LinkedList<Node> queue = new LinkedList<>();
-    queue.add(root);
+    if (root == null) {
+      return root;
+    }
+    LinkedList<QueueItem> queue = new LinkedList<>();
+    queue.add(new QueueItem(root, 0));
 
     while (!queue.isEmpty()) {
-      Node current = queue.poll();
-      if (queue.peekFirst() != null) {
-        Node next = queue.peekFirst();
-        current.next = next;
+      QueueItem currentItem = queue.poll();
+      Node currentNode = currentItem.getNode();
+      int currentDepth = currentItem.getDepth();
+
+      QueueItem nextItem = queue.peekFirst();
+      if (nextItem != null && nextItem.getDepth() == currentDepth) {
+        currentNode.next = nextItem.getNode();
       }
 
-      if (current.left != null) {
-        queue.add(current.left);
+      if (currentNode.left != null) {
+        queue.add(new QueueItem(currentNode.next, currentDepth + 1));
       }
 
-      if (current.right != null) {
-        queue.add(current.right);
+      if (currentNode.right != null) {
+        queue.add(new QueueItem(currentNode.right, currentDepth + 1));
       }
     }
 
     return root;
   }
+
 }
