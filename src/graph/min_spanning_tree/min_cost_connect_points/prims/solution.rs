@@ -1,22 +1,65 @@
-use std::collections::{hash_map::Entry, BinaryHeap, HashMap, HashSet};
+use std::{
+    cmp::{Ordering, Reverse},
+    collections::{hash_map::Entry, BinaryHeap, HashMap, HashSet},
+};
 
 #[allow(dead_code)]
 impl Solution {
     pub fn min_cost_connect_points(points: Vec<Vec<i32>>) -> i32 {
+        if points.len() == 1 {
+            return 0;
+        }
         let edges = points_to_edges(&points);
-        println!("EDGES {:?}", edges);
-        println!("");
-        let edgemap = edges_to_edgemap(&edges);
-        println!("EDGEMAP {:?}", edgemap);
-        let unvisited: HashSet<usize> = (0..points.len()).collect();
-        let visited: HashSet<usize> = HashSet::new();
-        let mut heap: BinaryHeap<(i32, [usize; 2])> = BinaryHeap::new();
-        heap.push((2, [2, 2]));
-        unimplemented!()
+        let mut edgemap = edges_to_edgemap(&edges);
+        let mut unvisited: HashSet<usize> = (0..points.len()).collect();
+        let mut visited = HashSet::new();
+        let mut heap = BinaryHeap::new();
+        let mut cost = 0;
+        process_visit(&mut heap, &mut edgemap, &mut visited, &mut unvisited, 0);
+
+        while unvisited.len() > 0 {
+            let current = heap.pop().unwrap().0;
+            if !visited.contains(&current.start) {
+                cost += current.weight;
+                process_visit(
+                    &mut heap,
+                    &mut edgemap,
+                    &mut visited,
+                    &mut unvisited,
+                    current.start,
+                )
+            }
+            if !visited.contains(&current.end) {
+                cost += current.weight;
+                process_visit(
+                    &mut heap,
+                    &mut edgemap,
+                    &mut visited,
+                    &mut unvisited,
+                    current.end,
+                )
+            }
+        }
+
+        cost
     }
 }
 
-#[derive(Debug)]
+fn process_visit<'a>(
+    heap: &mut BinaryHeap<Reverse<&'a Edge>>,
+    edgemap: &mut HashMap<usize, Vec<&'a Edge>>,
+    visited: &mut HashSet<usize>,
+    unvisited: &mut HashSet<usize>,
+    point: usize,
+) {
+    visited.insert(point);
+    unvisited.remove(&point);
+    for &edge in edgemap.remove(&point).unwrap().iter() {
+        heap.push(Reverse(edge));
+    }
+}
+
+#[derive(Debug, Eq)]
 struct Edge {
     start: usize,
     end: usize,
@@ -26,6 +69,24 @@ struct Edge {
 impl Edge {
     pub fn new(start: usize, end: usize, weight: i32) -> Self {
         Edge { start, end, weight }
+    }
+}
+
+impl Ord for Edge {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.weight.cmp(&other.weight)
+    }
+}
+
+impl PartialOrd for Edge {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Edge {
+    fn eq(&self, other: &Self) -> bool {
+        self.weight == other.weight
     }
 }
 
@@ -108,6 +169,16 @@ mod tests {
             .collect();
         let output = Solution::min_cost_connect_points(points);
         assert_eq!(output, 53);
+    }
+
+    #[test]
+    fn example_4() -> () {
+        let points = Vec::from([[0, 0]])
+            .iter()
+            .map(|&coord| Vec::from(coord))
+            .collect();
+        let output = Solution::min_cost_connect_points(points);
+        assert_eq!(output, 0);
     }
 }
 

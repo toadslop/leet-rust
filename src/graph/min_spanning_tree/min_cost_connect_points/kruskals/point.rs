@@ -5,12 +5,12 @@ pub struct Point {
     pub id: usize,
 }
 
-impl Point {
-    pub fn new(pt: Vec<i32>, id: usize) -> Self {
-        Point {
-            x: pt[0],
-            y: pt[1],
-            id,
-        }
-    }
-}
+// impl Point {
+//     pub fn new(pt: Vec<i32>, id: usize) -> Self {
+//         Point {
+//             x: pt[0],
+//             y: pt[1],
+//             id,
+//         }
+//     }
+// }
