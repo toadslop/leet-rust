@@ -1,2 +1,1 @@
-mod official;
 mod solution;

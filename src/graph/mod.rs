@@ -8,5 +8,6 @@ pub mod graph_valid_tree_v2;
 pub mod min_spanning_tree;
 pub mod number_of_connected_components;
 pub mod number_of_provinces;
+mod shortest_path;
 pub mod smallest_string;
 pub mod water_dist;
