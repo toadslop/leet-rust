@@ -10,4 +10,5 @@ pub mod number_of_connected_components;
 pub mod number_of_provinces;
 mod shortest_path;
 pub mod smallest_string;
+mod topological_sorting;
 pub mod water_dist;
