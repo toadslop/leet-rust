@@ -8,13 +8,13 @@ impl Solution {
         let mut zero_count = 0;
 
         for i in 0..nums.len() {
-            nums[i - zero_count] = nums[i];
-            
-            if nums[i] == 0 {
+            if nums[i] != 0 {
+                nums[i - zero_count] = nums[i];
+            } else {
                 zero_count += 1;
             }
 
-            if zero_count > 0 && i >= nums.len() - zero_count - 1 {
+            if zero_count > 0 {
                 nums[i] = 0;
             }
         }
