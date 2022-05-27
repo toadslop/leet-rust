@@ -3,8 +3,7 @@ use std::collections::HashSet;
 #[allow(dead_code)]
 impl Solution {
   pub fn find_disappeared_numbers(nums: Vec<i32>) -> Vec<i32> {
-    let vec: Vec<i32> = (1..=nums.len() as i32).collect();
-    let mut result: HashSet<i32> = vec.into();
+    let mut result = HashSet::<i32>::from_iter(1..=nums.len() as i32);
     for num in nums.iter() {
       result.remove(num);
     }
