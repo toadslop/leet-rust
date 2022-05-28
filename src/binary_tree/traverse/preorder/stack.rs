@@ -1,25 +1,19 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use super::tree::TreeNode;
+use crate::binary_tree::tree::TreeNode;
 
 #[allow(dead_code)]
 impl Solution {
     pub fn preorder_traversal(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<i32> {
         let mut result = vec![];
-        if let Some(node) = root {
-            let mut stack = vec![node];
-
-            while let Some(node) = stack.pop() {
-                result.push(node.borrow().val);
-
-                if let Some(right) = &node.borrow().right {
-                    stack.push(right.clone());
-                }
-
-                if let Some(left) = &node.borrow().left {
-                    stack.push(left.clone());
-                }
+        let mut stack = vec![root];
+        while let Some(node) = stack.pop() {
+            if let Some(node) = node {
+                let mut node = node.borrow_mut();
+                result.push(node.val);
+                stack.push(node.right.take());
+                stack.push(node.left.take());
             }
         }
 
@@ -33,7 +27,7 @@ struct Solution {}
 mod test {
     use std::{cell::RefCell, rc::Rc};
 
-    use crate::binary_tree::traverse::preorder::tree::TreeNode;
+    use crate::binary_tree::tree::TreeNode;
 
     use super::Solution;
 
