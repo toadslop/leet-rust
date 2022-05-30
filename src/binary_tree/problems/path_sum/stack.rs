@@ -4,11 +4,11 @@ use std::rc::Rc;
 
 use crate::binary_tree::tree::TreeNode;
 
-impl TreeNode {
-    pub fn is_leaf(&self) -> bool {
-        self.left.is_none() && self.right.is_none()
-    }
-}
+// impl TreeNode {
+//     pub fn is_leaf(&self) -> bool {
+//         self.left.is_none() && self.right.is_none()
+//     }
+// }
 
 #[allow(dead_code)]
 impl Solution {
