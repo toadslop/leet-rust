@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 
+use std::collections::HashSet;
 use std::rc::Rc;
 
 use crate::binary_tree::tree::TreeNode;
@@ -13,57 +14,25 @@ impl TreeNode {
 #[allow(dead_code)]
 impl Solution {
     pub fn count_unival_subtrees(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
-        let (_, result, _) = Self::subtree(root);
-        result as i32
+        let mut count = 0;
+        Self::subtree(root, &mut count);
+        count
     }
 
-    fn subtree(root: Option<Rc<RefCell<TreeNode>>>) -> (Option<i16>, u32, bool) {
+    fn subtree(root: Option<Rc<RefCell<TreeNode>>>, count: &mut i32) -> HashSet<i16> {
         if let Some(root) = root {
-            let (left_val, left_count, is_left_univalue) =
-                Self::subtree(root.borrow().left.clone());
-            let (right_val, right_count, is_right_univalue) =
-                Self::subtree(root.borrow().right.clone());
+            let mut left_values = Self::subtree(root.borrow().left.clone(), count);
+            let right_values = Self::subtree(root.borrow().right.clone(), count);
+            left_values.extend(right_values);
+            left_values.insert(root.borrow().val as i16);
 
-            let mut new_count = left_count + right_count;
-            let mut is_univalue = is_left_univalue == is_right_univalue;
-            let new_val: Option<i16> = match (left_val, right_val) {
-                (Some(left_val), Some(right_val)) => {
-                    if left_val == right_val && root.borrow().val == left_val.into() && is_univalue
-                    {
-                        new_count += 1;
-                        Some(left_val)
-                    } else {
-                        is_univalue = false;
-                        Some(root.borrow().val as i16)
-                    }
-                }
-                (Some(left_val), None) => {
-                    if root.borrow().val == left_val.into() && is_univalue {
-                        new_count += 1;
-                        Some(left_val)
-                    } else {
-                        is_univalue = false;
-                        Some(root.borrow().val as i16)
-                    }
-                }
-                (None, Some(right_val)) => {
-                    if root.borrow().val == right_val.into() && is_univalue {
-                        new_count += 1;
-                        Some(right_val)
-                    } else {
-                        is_univalue = false;
-                        Some(root.borrow().val as i16)
-                    }
-                }
-                (None, None) => {
-                    new_count += 1;
-                    Some(root.borrow().val as i16)
-                }
-            };
+            if left_values.len() == 1 {
+                *count += 1;
+            }
 
-            (new_val, new_count, is_univalue)
+            left_values
         } else {
-            (None, 0, true)
+            HashSet::new()
         }
     }
 }
